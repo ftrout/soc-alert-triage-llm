@@ -1,5 +1,4 @@
-"""
-SOC Triage Agent - Security Operations Center Alert Triage Model
+"""SOC Triage Agent - Security Operations Center Alert Triage Model.
 ================================================================
 
 A fine-tuned language model for automated security alert triage,
@@ -19,17 +18,17 @@ __author__ = "SOC Triage Agent Contributors"
 __license__ = "Apache-2.0"
 
 from .data_generator import (
-    SecurityAlertGenerator,
     AlertCategory,
+    SecurityAlertGenerator,
     Severity,
     TriageDecision,
 )
-from .model import SOCTriageModel
 from .evaluation import TriageEvaluator
+from .model import SOCTriageModel
 
 __all__ = [
     "SecurityAlertGenerator",
-    "AlertCategory", 
+    "AlertCategory",
     "Severity",
     "TriageDecision",
     "SOCTriageModel",

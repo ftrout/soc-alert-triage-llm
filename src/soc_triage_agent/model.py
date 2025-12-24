@@ -1,5 +1,4 @@
-"""
-SOC Triage Model Interface
+"""SOC Triage Model Interface.
 ===========================
 
 Provides a unified interface for loading and using fine-tuned
@@ -8,25 +7,27 @@ security triage models from Hugging Face Hub or local files.
 
 import json
 import re
-from typing import Optional, Dict, Any, List, Union
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Optional, Union
 
 
 @dataclass
 class TriagePrediction:
     """Structured prediction from the triage model."""
+
     decision: str
     priority: int
     confidence: float
     reasoning: str
-    recommended_actions: List[str]
+    recommended_actions: list[str]
     escalation_required: bool
     escalation_target: Optional[str]
     estimated_impact: str
     raw_output: str
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert prediction to dictionary."""
         return {
             "decision": self.decision,
             "priority": self.priority,
@@ -40,20 +41,20 @@ class TriagePrediction:
 
 
 class SOCTriageModel:
-    """
-    Wrapper for SOC Triage models with consistent inference interface.
-    
+    """Wrapper for SOC Triage models with consistent inference interface.
+
     Supports loading from:
     - Hugging Face Hub
     - Local model files
     - Azure OpenAI / OpenAI API
-    
+
     Example:
         >>> model = SOCTriageModel.from_pretrained("your-org/soc-triage-model")
         >>> prediction = model.predict(alert_data)
         >>> print(f"Decision: {prediction.decision}")
+
     """
-    
+
     SYSTEM_PROMPT = """You are an expert Security Operations Center (SOC) analyst AI assistant. Your role is to analyze security alerts and provide comprehensive triage recommendations. For each alert, you should:
 
 1. Assess the severity and potential impact based on all available context
@@ -71,7 +72,7 @@ Consider the full context including:
 - Historical patterns and related alerts
 
 Provide your response in a structured format that can be easily parsed and actioned by the SOC team."""
-    
+
     def __init__(
         self,
         model=None,
@@ -80,26 +81,26 @@ Provide your response in a structured format that can be easily parsed and actio
         device: str = "auto",
         **kwargs,
     ):
-        """
-        Initialize the model wrapper.
-        
+        """Initialize the model wrapper.
+
         Args:
             model: The loaded model (transformers, vllm, etc.)
             tokenizer: The tokenizer
             model_type: Type of model ("transformers", "vllm", "openai", "azure")
             device: Device to use ("auto", "cuda", "cpu")
             **kwargs: Additional configuration
+
         """
         self.model = model
         self.tokenizer = tokenizer
         self.model_type = model_type
         self.device = device
         self.config = kwargs
-        
+
         # For API-based models
         self.api_client = None
         self.api_model_name = kwargs.get("api_model_name")
-    
+
     @classmethod
     def from_pretrained(
         cls,
@@ -110,9 +111,8 @@ Provide your response in a structured format that can be easily parsed and actio
         use_flash_attention: bool = True,
         **kwargs,
     ) -> "SOCTriageModel":
-        """
-        Load a pre-trained SOC Triage model.
-        
+        """Load a pre-trained SOC Triage model.
+
         Args:
             model_name_or_path: HuggingFace model ID or local path
             device: Device to use
@@ -120,47 +120,48 @@ Provide your response in a structured format that can be easily parsed and actio
             load_in_4bit: Use 4-bit quantization
             use_flash_attention: Use Flash Attention 2
             **kwargs: Additional arguments for model loading
-            
+
         Returns:
             SOCTriageModel instance
+
         """
         try:
-            from transformers import AutoModelForCausalLM, AutoTokenizer
             import torch
-        except ImportError:
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+        except ImportError as err:
             raise ImportError(
-                "transformers and torch required. Install with: "
-                "pip install transformers torch"
-            )
-        
+                "transformers and torch required. Install with: pip install transformers torch"
+            ) from err
+
         # Determine device
         if device == "auto":
             device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+
         print(f"Loading model from {model_name_or_path}...")
-        
+
         # Load tokenizer
         tokenizer = AutoTokenizer.from_pretrained(
             model_name_or_path,
             trust_remote_code=True,
             **kwargs,
         )
-        
+
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
-        
+
         # Prepare model loading arguments
         model_kwargs = {
             "trust_remote_code": True,
             "device_map": device if device != "cpu" else None,
         }
-        
+
         if load_in_8bit:
             model_kwargs["load_in_8bit"] = True
         elif load_in_4bit:
             model_kwargs["load_in_4bit"] = True
             try:
                 from transformers import BitsAndBytesConfig
+
                 model_kwargs["quantization_config"] = BitsAndBytesConfig(
                     load_in_4bit=True,
                     bnb_4bit_compute_dtype=torch.float16,
@@ -170,28 +171,28 @@ Provide your response in a structured format that can be easily parsed and actio
             except ImportError:
                 print("Warning: bitsandbytes not available, skipping 4-bit quantization")
                 del model_kwargs["load_in_4bit"]
-        
+
         if use_flash_attention:
             model_kwargs["attn_implementation"] = "flash_attention_2"
-        
+
         # Load model
         model = AutoModelForCausalLM.from_pretrained(
             model_name_or_path,
             **model_kwargs,
         )
-        
+
         if device == "cpu":
             model = model.to("cpu")
-        
+
         print(f"Model loaded successfully on {device}")
-        
+
         return cls(
             model=model,
             tokenizer=tokenizer,
             model_type="transformers",
             device=device,
         )
-    
+
     @classmethod
     def from_openai(
         cls,
@@ -200,29 +201,29 @@ Provide your response in a structured format that can be easily parsed and actio
         api_base: Optional[str] = None,
         **kwargs,
     ) -> "SOCTriageModel":
-        """
-        Create a model wrapper for OpenAI API.
-        
+        """Create a model wrapper for OpenAI API.
+
         Args:
             model_name: OpenAI model name (e.g., "gpt-4", or fine-tuned model ID)
             api_key: OpenAI API key (uses env var if not provided)
             api_base: Custom API base URL
-            
+
         Returns:
             SOCTriageModel instance
+
         """
         try:
             from openai import OpenAI
-        except ImportError:
-            raise ImportError("openai required. Install with: pip install openai")
-        
+        except ImportError as err:
+            raise ImportError("openai required. Install with: pip install openai") from err
+
         import os
-        
+
         client = OpenAI(
             api_key=api_key or os.getenv("OPENAI_API_KEY"),
             base_url=api_base,
         )
-        
+
         instance = cls(
             model=None,
             tokenizer=None,
@@ -230,9 +231,9 @@ Provide your response in a structured format that can be easily parsed and actio
             api_model_name=model_name,
         )
         instance.api_client = client
-        
+
         return instance
-    
+
     @classmethod
     def from_azure_openai(
         cls,
@@ -242,31 +243,31 @@ Provide your response in a structured format that can be easily parsed and actio
         api_version: str = "2024-02-15-preview",
         **kwargs,
     ) -> "SOCTriageModel":
-        """
-        Create a model wrapper for Azure OpenAI.
-        
+        """Create a model wrapper for Azure OpenAI.
+
         Args:
             deployment_name: Azure OpenAI deployment name
             endpoint: Azure OpenAI endpoint
             api_key: Azure OpenAI API key
             api_version: API version
-            
+
         Returns:
             SOCTriageModel instance
+
         """
         try:
             from openai import AzureOpenAI
-        except ImportError:
-            raise ImportError("openai required. Install with: pip install openai")
-        
+        except ImportError as err:
+            raise ImportError("openai required. Install with: pip install openai") from err
+
         import os
-        
+
         client = AzureOpenAI(
             api_key=api_key or os.getenv("AZURE_OPENAI_KEY"),
             azure_endpoint=endpoint or os.getenv("AZURE_OPENAI_ENDPOINT"),
             api_version=api_version,
         )
-        
+
         instance = cls(
             model=None,
             tokenizer=None,
@@ -274,17 +275,16 @@ Provide your response in a structured format that can be easily parsed and actio
             api_model_name=deployment_name,
         )
         instance.api_client = client
-        
+
         return instance
-    
-    def format_alert(self, alert: Dict[str, Any]) -> str:
+
+    def format_alert(self, alert: dict[str, Any]) -> str:
         """Format an alert dictionary into a prompt."""
-        
         # Handle different alert formats
         if "messages" in alert:
             # Already formatted
             return alert["messages"][1]["content"]
-        
+
         prompt = f"""Analyze the following security alert and provide a comprehensive triage recommendation:
 
 ## Alert Details
@@ -301,17 +301,17 @@ Provide your response in a structured format that can be easily parsed and actio
 
 **Affected Assets:** {', '.join(alert.get('affected_assets', ['N/A']))}
 """
-        
-        if alert.get('indicators'):
+
+        if alert.get("indicators"):
             prompt += f"""
 ## Indicators of Compromise
 ```json
 {json.dumps(alert['indicators'], indent=2)}
 ```
 """
-        
-        if alert.get('user_context'):
-            ctx = alert['user_context']
+
+        if alert.get("user_context"):
+            ctx = alert["user_context"]
             prompt += f"""
 ## User Context
 - **Username:** {ctx.get('username', 'N/A')}
@@ -320,9 +320,9 @@ Provide your response in a structured format that can be easily parsed and actio
 - **Risk Level:** {ctx.get('risk_level', 'N/A')}
 - **VIP Status:** {'Yes' if ctx.get('is_vip') else 'No'}
 """
-        
-        if alert.get('asset_context'):
-            ctx = alert['asset_context']
+
+        if alert.get("asset_context"):
+            ctx = alert["asset_context"]
             prompt += f"""
 ## Asset Context
 - **Hostname:** {ctx.get('hostname', 'N/A')}
@@ -330,22 +330,21 @@ Provide your response in a structured format that can be easily parsed and actio
 - **Criticality:** {ctx.get('criticality', 'N/A')}
 - **Data Classification:** {ctx.get('data_classification', 'N/A')}
 """
-        
-        if alert.get('raw_log'):
+
+        if alert.get("raw_log"):
             prompt += f"""
 ## Raw Log Entry
 ```
 {alert['raw_log']}
 ```
 """
-        
+
         prompt += "\nProvide your triage recommendation with decision, priority, reasoning, and specific actions."
-        
+
         return prompt
-    
+
     def parse_response(self, response: str) -> TriagePrediction:
         """Parse model response into structured prediction."""
-        
         # Default values
         decision = "investigate"
         priority = 3
@@ -355,59 +354,61 @@ Provide your response in a structured format that can be easily parsed and actio
         escalation_required = False
         escalation_target = None
         estimated_impact = "moderate"
-        
+
         # Parse decision
-        decision_match = re.search(r'\*\*Decision\*\*[:\s|]+(\w+)', response, re.IGNORECASE)
+        decision_match = re.search(r"\*\*Decision\*\*[:\s|]+(\w+)", response, re.IGNORECASE)
         if decision_match:
             decision = decision_match.group(1).lower()
-        
+
         # Parse priority
-        priority_match = re.search(r'\*\*Priority\*\*[:\s|]+(\d)', response)
+        priority_match = re.search(r"\*\*Priority\*\*[:\s|]+(\d)", response)
         if priority_match:
             priority = int(priority_match.group(1))
-        
+
         # Parse confidence
-        confidence_match = re.search(r'\*\*Confidence\*\*[:\s|]+(\d+)', response)
+        confidence_match = re.search(r"\*\*Confidence\*\*[:\s|]+(\d+)", response)
         if confidence_match:
             confidence = float(confidence_match.group(1)) / 100
-        
+
         # Parse escalation
-        escalation_match = re.search(r'\*\*Escalation Required\*\*[:\s|]+(Yes|No)', response, re.IGNORECASE)
+        escalation_match = re.search(
+            r"\*\*Escalation Required\*\*[:\s|]+(Yes|No)", response, re.IGNORECASE
+        )
         if escalation_match:
             escalation_required = escalation_match.group(1).lower() == "yes"
-        
-        escalation_target_match = re.search(r'\*\*Escalation Target\*\*[:\s|]+([^\n|]+)', response)
+
+        escalation_target_match = re.search(r"\*\*Escalation Target\*\*[:\s|]+([^\n|]+)", response)
         if escalation_target_match:
             target = escalation_target_match.group(1).strip()
             if target.lower() != "n/a":
                 escalation_target = target
-        
+
         # Parse impact
-        impact_match = re.search(r'\*\*Estimated Impact\*\*[:\s|]+(\w+)', response, re.IGNORECASE)
+        impact_match = re.search(r"\*\*Estimated Impact\*\*[:\s|]+(\w+)", response, re.IGNORECASE)
         if impact_match:
             estimated_impact = impact_match.group(1).lower()
-        
+
         # Parse reasoning section
-        reasoning_match = re.search(r'### Reasoning\n(.+?)(?=###|\Z)', response, re.DOTALL)
+        reasoning_match = re.search(r"### Reasoning\n(.+?)(?=###|\Z)", response, re.DOTALL)
         if reasoning_match:
             reasoning = reasoning_match.group(1).strip()
         else:
             # Try to get key factors
-            factors_match = re.search(r'### Key Factors\n(.+?)(?=###|\Z)', response, re.DOTALL)
+            factors_match = re.search(r"### Key Factors\n(.+?)(?=###|\Z)", response, re.DOTALL)
             if factors_match:
                 reasoning = factors_match.group(1).strip()
-        
+
         # Parse actions
-        actions_match = re.search(r'### Recommended Actions\n(.+?)(?=###|\Z)', response, re.DOTALL)
+        actions_match = re.search(r"### Recommended Actions\n(.+?)(?=###|\Z)", response, re.DOTALL)
         if actions_match:
             actions_text = actions_match.group(1)
-            for line in actions_text.split('\n'):
+            for line in actions_text.split("\n"):
                 line = line.strip()
-                if line and (line[0].isdigit() or line.startswith('-')):
-                    action = re.sub(r'^[\d\.\-\s]+', '', line).strip()
+                if line and (line[0].isdigit() or line.startswith("-")):
+                    action = re.sub(r"^[\d\.\-\s]+", "", line).strip()
                     if action:
                         actions.append(action)
-        
+
         return TriagePrediction(
             decision=decision,
             priority=priority,
@@ -419,37 +420,34 @@ Provide your response in a structured format that can be easily parsed and actio
             estimated_impact=estimated_impact,
             raw_output=response,
         )
-    
+
     def predict(
         self,
-        alert: Union[Dict[str, Any], str],
+        alert: Union[dict[str, Any], str],
         max_new_tokens: int = 1024,
         temperature: float = 0.3,
         **kwargs,
     ) -> TriagePrediction:
-        """
-        Generate triage prediction for an alert.
-        
+        """Generate triage prediction for an alert.
+
         Args:
             alert: Alert data (dict) or formatted prompt (str)
             max_new_tokens: Maximum tokens to generate
             temperature: Sampling temperature
             **kwargs: Additional generation parameters
-            
+
         Returns:
             TriagePrediction with structured output
+
         """
         # Format alert if needed
-        if isinstance(alert, dict):
-            user_message = self.format_alert(alert)
-        else:
-            user_message = alert
-        
+        user_message = self.format_alert(alert) if isinstance(alert, dict) else alert
+
         if self.model_type in ["openai", "azure"]:
             return self._predict_api(user_message, max_new_tokens, temperature, **kwargs)
         else:
             return self._predict_transformers(user_message, max_new_tokens, temperature, **kwargs)
-    
+
     def _predict_api(
         self,
         user_message: str,
@@ -458,7 +456,6 @@ Provide your response in a structured format that can be easily parsed and actio
         **kwargs,
     ) -> TriagePrediction:
         """Generate prediction using OpenAI/Azure API."""
-        
         response = self.api_client.chat.completions.create(
             model=self.api_model_name,
             messages=[
@@ -469,10 +466,10 @@ Provide your response in a structured format that can be easily parsed and actio
             temperature=temperature,
             **kwargs,
         )
-        
+
         output_text = response.choices[0].message.content
         return self.parse_response(output_text)
-    
+
     def _predict_transformers(
         self,
         user_message: str,
@@ -481,13 +478,12 @@ Provide your response in a structured format that can be easily parsed and actio
         **kwargs,
     ) -> TriagePrediction:
         """Generate prediction using transformers model."""
-        
         # Format as chat
         messages = [
             {"role": "system", "content": self.SYSTEM_PROMPT},
             {"role": "user", "content": user_message},
         ]
-        
+
         # Apply chat template
         if hasattr(self.tokenizer, "apply_chat_template"):
             prompt = self.tokenizer.apply_chat_template(
@@ -497,7 +493,7 @@ Provide your response in a structured format that can be easily parsed and actio
             )
         else:
             prompt = f"{self.SYSTEM_PROMPT}\n\nUser: {user_message}\n\nAssistant:"
-        
+
         # Tokenize
         inputs = self.tokenizer(
             prompt,
@@ -505,13 +501,13 @@ Provide your response in a structured format that can be easily parsed and actio
             truncation=True,
             max_length=4096,
         )
-        
+
         if self.device != "cpu":
             inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
-        
+
         # Generate
         import torch
-        
+
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
@@ -521,53 +517,53 @@ Provide your response in a structured format that can be easily parsed and actio
                 pad_token_id=self.tokenizer.pad_token_id,
                 **kwargs,
             )
-        
+
         # Decode
         output_text = self.tokenizer.decode(
-            outputs[0][inputs["input_ids"].shape[1]:],
+            outputs[0][inputs["input_ids"].shape[1] :],
             skip_special_tokens=True,
         )
-        
+
         return self.parse_response(output_text)
-    
+
     def batch_predict(
         self,
-        alerts: List[Union[Dict[str, Any], str]],
+        alerts: list[Union[dict[str, Any], str]],
         batch_size: int = 8,
         **kwargs,
-    ) -> List[TriagePrediction]:
-        """
-        Generate predictions for multiple alerts.
-        
+    ) -> list[TriagePrediction]:
+        """Generate predictions for multiple alerts.
+
         Args:
             alerts: List of alerts
             batch_size: Batch size for inference
             **kwargs: Additional generation parameters
-            
+
         Returns:
             List of TriagePrediction objects
+
         """
         predictions = []
-        
+
         for i in range(0, len(alerts), batch_size):
-            batch = alerts[i:i + batch_size]
+            batch = alerts[i : i + batch_size]
             for alert in batch:
                 pred = self.predict(alert, **kwargs)
                 predictions.append(pred)
-        
+
         return predictions
-    
+
     def save_pretrained(self, output_dir: str) -> None:
         """Save model and tokenizer to directory."""
         if self.model is None or self.tokenizer is None:
             raise ValueError("Cannot save API-based model")
-        
+
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
-        
+
         self.model.save_pretrained(output_path)
         self.tokenizer.save_pretrained(output_path)
-        
+
         # Save config
         config = {
             "model_type": self.model_type,
@@ -575,28 +571,28 @@ Provide your response in a structured format that can be easily parsed and actio
         }
         with open(output_path / "soc_triage_config.json", "w") as f:
             json.dump(config, f, indent=2)
-    
+
     def push_to_hub(
         self,
         repo_id: str,
         private: bool = False,
         **kwargs,
     ) -> str:
-        """
-        Push model to Hugging Face Hub.
-        
+        """Push model to Hugging Face Hub.
+
         Args:
             repo_id: Repository ID (e.g., "username/model-name")
             private: Whether to create private repo
             **kwargs: Additional arguments for push_to_hub
-            
+
         Returns:
             Repository URL
+
         """
         if self.model is None or self.tokenizer is None:
             raise ValueError("Cannot push API-based model")
-        
+
         self.model.push_to_hub(repo_id, private=private, **kwargs)
         self.tokenizer.push_to_hub(repo_id, private=private, **kwargs)
-        
+
         return f"https://huggingface.co/{repo_id}"
