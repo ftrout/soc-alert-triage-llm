@@ -1,0 +1,96 @@
+# Training Configuration: LoRA Fine-tuning
+# 
+# Recommended for 8B parameter models on single GPU (24GB+)
+# Usage: python scripts/train.py --config configs/train_lora.yaml
+
+# Model Configuration
+model:
+  name_or_path: "meta-llama/Llama-3.1-8B-Instruct"
+  trust_remote_code: true
+  use_flash_attention_2: true
+  torch_dtype: "bfloat16"
+
+# Tokenizer Configuration
+tokenizer:
+  name_or_path: null  # Uses model path if null
+  padding_side: "right"
+  max_length: 4096
+
+# LoRA Configuration
+lora:
+  enabled: true
+  r: 64
+  alpha: 128
+  dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+# Quantization (disabled for standard LoRA)
+quantization:
+  load_in_4bit: false
+  load_in_8bit: false
+
+# Data Configuration
+data:
+  train_file: "data/train.jsonl"
+  validation_file: "data/val.jsonl"
+  max_seq_length: 4096
+  preprocessing_num_workers: 4
+
+# Training Arguments
+training:
+  output_dir: "./outputs/soc-triage-lora"
+  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4
+  
+  # Optimizer
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  lr_scheduler_type: "cosine"
+  optim: "adamw_torch"
+  
+  # Precision
+  bf16: true
+  fp16: false
+  
+  # Memory optimization
+  gradient_checkpointing: true
+  
+  # Logging
+  logging_steps: 10
+  logging_first_step: true
+  report_to: "tensorboard"
+  
+  # Saving
+  save_strategy: "steps"
+  save_steps: 500
+  save_total_limit: 3
+  
+  # Evaluation
+  eval_strategy: "steps"
+  eval_steps: 500
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+  
+  # Other
+  seed: 42
+  dataloader_num_workers: 4
+  remove_unused_columns: false
+
+# Hugging Face Hub
+hub:
+  push_to_hub: false
+  hub_model_id: null
+  hub_private_repo: false

@@ -1,0 +1,151 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "soc-triage-agent"
+version = "1.0.0"
+description = "Fine-tuned language models for Security Operations Center alert triage"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.9"
+authors = [
+    {name = "SOC Triage Agent Contributors"}
+]
+maintainers = [
+    {name = "SOC Triage Agent Contributors"}
+]
+keywords = [
+    "security",
+    "soc",
+    "triage",
+    "alert",
+    "machine-learning",
+    "nlp",
+    "transformers",
+    "fine-tuning",
+    "cybersecurity",
+    "incident-response",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security",
+    "Topic :: Text Processing :: Linguistic",
+]
+dependencies = [
+    "transformers>=4.36.0",
+    "datasets>=2.14.0",
+    "torch>=2.0.0",
+    "accelerate>=0.24.0",
+    "peft>=0.6.0",
+    "bitsandbytes>=0.41.0",
+    "safetensors>=0.4.0",
+    "sentencepiece>=0.1.99",
+    "protobuf>=3.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "pre-commit>=3.4.0",
+]
+train = [
+    "deepspeed>=0.12.0",
+    "wandb>=0.15.0",
+    "tensorboard>=2.14.0",
+    "flash-attn>=2.3.0",
+]
+serve = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "pydantic>=2.5.0",
+]
+azure = [
+    "azure-ai-ml>=1.12.0",
+    "azure-identity>=1.15.0",
+    "openai>=1.12.0",
+]
+all = [
+    "soc-triage-agent[dev,train,serve,azure]",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/soc-triage-agent"
+Documentation = "https://github.com/your-org/soc-triage-agent#readme"
+Repository = "https://github.com/your-org/soc-triage-agent"
+Issues = "https://github.com/your-org/soc-triage-agent/issues"
+
+[project.scripts]
+soc-triage-generate = "soc_triage_agent.data_generator:main"
+soc-triage-evaluate = "soc_triage_agent.evaluation:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"soc_triage_agent" = ["*.json", "*.yaml", "*.md"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "D", "UP", "B", "C4", "SIM"]
+ignore = ["D100", "D104", "D107", "D203", "D213"]
+target-version = "py39"
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["D"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=soc_triage_agent --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["src/soc_triage_agent"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
