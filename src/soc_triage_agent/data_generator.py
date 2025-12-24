@@ -601,9 +601,7 @@ class SecurityAlertGenerator:
             if prefix == "10.":
                 return f"10.{self._rng.randint(0,255)}.{self._rng.randint(0,255)}.{self._rng.randint(1,254)}"
             elif prefix == "172.16.":
-                return (
-                    f"172.{self._rng.randint(16,31)}.{self._rng.randint(0,255)}.{self._rng.randint(1,254)}"
-                )
+                return f"172.{self._rng.randint(16,31)}.{self._rng.randint(0,255)}.{self._rng.randint(1,254)}"
             else:
                 return f"192.168.{self._rng.randint(0,255)}.{self._rng.randint(1,254)}"
         else:
@@ -780,7 +778,9 @@ class SecurityAlertGenerator:
         return NetworkContext(
             source_ip=self._generate_ip(internal=not external_threat),
             destination_ip=(
-                self._generate_ip(internal=self._rng.random() > 0.5) if self._rng.random() > 0.3 else None
+                self._generate_ip(internal=self._rng.random() > 0.5)
+                if self._rng.random() > 0.3
+                else None
             ),
             source_zone=(
                 "external" if external_threat else self._rng.choice(["internal", "vpn", "guest"])
@@ -788,7 +788,9 @@ class SecurityAlertGenerator:
             destination_zone=self._rng.choice(zones) if self._rng.random() > 0.3 else None,
             protocol=self._rng.choice(protocols),
             port=self._rng.choice([22, 80, 443, 445, 3389, 8080, 8443, None]),
-            bytes_transferred=self._rng.randint(1000, 100000000) if self._rng.random() > 0.5 else None,
+            bytes_transferred=(
+                self._rng.randint(1000, 100000000) if self._rng.random() > 0.5 else None
+            ),
             geo_location=self._rng.choice(countries) if self._rng.random() > 0.4 else None,
             is_encrypted=self._rng.random() > 0.3,
         )
@@ -918,7 +920,9 @@ class SecurityAlertGenerator:
                 "target_account_list": [
                     f"user{i}@company.com" for i in range(self._rng.randint(1, 5))
                 ],
-                "successful_auth": self._rng.choice([True, False, False, False]),  # 25% success rate
+                "successful_auth": self._rng.choice(
+                    [True, False, False, False]
+                ),  # 25% success rate
                 "lockouts_triggered": self._rng.randint(0, 20),
                 "auth_protocol": self._rng.choice(["LDAP", "Kerberos", "NTLM", "OAuth", "SAML"]),
             }
@@ -940,7 +944,9 @@ class SecurityAlertGenerator:
                 "data_classification": self._rng.choice(
                     ["public", "internal", "confidential", "restricted"]
                 ),
-                "transfer_method": self._rng.choice(["HTTP", "HTTPS", "FTP", "SFTP", "Email", "USB"]),
+                "transfer_method": self._rng.choice(
+                    ["HTTP", "HTTPS", "FTP", "SFTP", "Email", "USB"]
+                ),
                 "encryption_detected": self._rng.choice([True, False]),
             }
 
@@ -994,7 +1000,9 @@ class SecurityAlertGenerator:
             return {
                 "destination_domain": self._generate_domain(suspicious=True),
                 "destination_ip": self._generate_ip(),
-                "beacon_interval_seconds": self._rng.choice([30, 60, 120, 300, 600, 900, 1800, 3600]),
+                "beacon_interval_seconds": self._rng.choice(
+                    [30, 60, 120, 300, 600, 900, 1800, 3600]
+                ),
                 "jitter_percentage": self._rng.randint(0, 50),
                 "protocol": self._rng.choice(["HTTPS", "HTTP", "DNS", "ICMP", "Custom"]),
                 "c2_framework": (
@@ -1555,7 +1563,9 @@ class SecurityAlertGenerator:
                         if indicators.get("attachment_types")
                         else ".pdf"
                     ),
-                    "brand": self._rng.choice(["Microsoft", "Google", "Apple", "Amazon", "LinkedIn"]),
+                    "brand": self._rng.choice(
+                        ["Microsoft", "Google", "Apple", "Amazon", "LinkedIn"]
+                    ),
                     "user": user_context.username,
                     "score": indicators.get("user_risk_score", 75),
                     "resource": self._rng.choice(

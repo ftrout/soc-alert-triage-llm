@@ -13,7 +13,7 @@ tags:
 - incident-response
 - fine-tuned
 datasets:
-- your-org/soc-triage-dataset
+- fmt0816/soc-triage-dataset
 base_model: meta-llama/Llama-3.1-8B-Instruct
 model-index:
 - name: soc-triage-agent
@@ -22,7 +22,7 @@ model-index:
       type: text-generation
       name: Security Alert Triage
     dataset:
-      type: your-org/soc-triage-dataset
+      type: fmt0816/soc-triage-dataset
       name: SOC Triage Dataset
     metrics:
     - type: accuracy
@@ -86,7 +86,7 @@ pip install transformers torch accelerate
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-model_id = "your-org/soc-triage-agent"
+model_id = "fmt0816/soc-triage-agent"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto")
 
@@ -124,7 +124,7 @@ print(response)
 from soc_triage_agent import SOCTriageModel
 
 # Load model
-model = SOCTriageModel.from_pretrained("your-org/soc-triage-agent")
+model = SOCTriageModel.from_pretrained("fmt0816/soc-triage-agent")
 
 # Triage an alert
 alert = {
@@ -243,8 +243,8 @@ python scripts/train.py \
 @software{soc_triage_agent,
   title = {SOC Triage Agent: Fine-tuned LLM for Security Alert Triage},
   author = {SOC Triage Agent Contributors},
-  year = {2024},
-  url = {https://huggingface.co/your-org/soc-triage-agent}
+  year = {2025},
+  url = {https://huggingface.co/fmt0816/soc-triage-agent}
 }
 ```
 

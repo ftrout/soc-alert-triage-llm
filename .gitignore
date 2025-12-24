@@ -184,3 +184,5 @@ credentials.json
 *.tar.gz
 *.tar
 *.7z
+.ruff_cache/
+.ruff_cache/

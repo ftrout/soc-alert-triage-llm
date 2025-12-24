@@ -231,7 +231,7 @@ All data is synthetically generated. No real security incidents or personal data
 from datasets import load_dataset
 
 # From Hugging Face Hub
-dataset = load_dataset("your-org/soc-triage-dataset")
+dataset = load_dataset("fmt0816/soc-triage-dataset")
 
 # Access splits
 train_data = dataset["train"]
@@ -275,8 +275,8 @@ generator.generate_dataset(format_type="huggingface")
 @dataset{soc_triage_dataset,
   title = {SOC Triage Dataset: Synthetic Security Alerts for ML Training},
   author = {SOC Triage Agent Contributors},
-  year = {2024},
-  url = {https://huggingface.co/datasets/your-org/soc-triage-dataset},
+  year = {2025},
+  url = {https://huggingface.co/datasets/fmt0816/soc-triage-dataset},
   license = {Apache-2.0}
 }
 ```

@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-yellow)](https://huggingface.co/your-org/soc-triage-agent)
+[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-yellow)](https://huggingface.co/fmt0816/soc-triage-agent)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 **Fine-tuned language models for automated Security Operations Center (SOC) alert triage.**
@@ -25,7 +25,7 @@ SOC Triage Agent helps security analysts by providing consistent, expert-level t
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/soc-triage-agent.git
+git clone https://github.com/fmt0816/soc-triage-agent.git
 cd soc-triage-agent
 
 # Install the package
@@ -69,7 +69,7 @@ python scripts/train.py \
 from soc_triage_agent import SOCTriageModel
 
 # Load from Hugging Face
-model = SOCTriageModel.from_pretrained("your-org/soc-triage-agent")
+model = SOCTriageModel.from_pretrained("fmt0816/soc-triage-agent")
 
 # Triage an alert
 alert = {
@@ -167,7 +167,7 @@ soc-triage-agent/
 ### Hugging Face Hub
 
 ```python
-model = SOCTriageModel.from_pretrained("your-org/soc-triage-agent")
+model = SOCTriageModel.from_pretrained("fmt0816/soc-triage-agent")
 ```
 
 ### Azure OpenAI
@@ -218,8 +218,8 @@ Apache License 2.0 - see [LICENSE](LICENSE) for details.
 @software{soc_triage_agent,
   title = {SOC Triage Agent: Fine-tuned LLM for Security Alert Triage},
   author = {SOC Triage Agent Contributors},
-  year = {2024},
-  url = {https://github.com/your-org/soc-triage-agent}
+  year = {2025},
+  url = {https://github.com/fmt0816/soc-triage-agent}
 }
 ```
 
