@@ -20,10 +20,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CUDA_DEVICE_ORDER=PCI_BUS_ID \
     # PyTorch optimizations
     PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
-    # Transformers/HF settings
-    TRANSFORMERS_CACHE=/workspace/.cache/huggingface \
-    HF_HOME=/workspace/.cache/huggingface \
-    HF_DATASETS_CACHE=/workspace/.cache/huggingface/datasets
+    # Hugging Face settings
+    HF_HOME=/workspace/.cache/huggingface
 
 WORKDIR /workspace
 
