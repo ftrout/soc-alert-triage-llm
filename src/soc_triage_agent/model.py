@@ -75,7 +75,7 @@ Provide your response in a structured format that can be easily parsed and actio
 
     def __init__(
         self,
-        model=None,
+        model_or_path=None,
         tokenizer=None,
         model_type: str = "transformers",
         device: str = "auto",
@@ -84,14 +84,26 @@ Provide your response in a structured format that can be easily parsed and actio
         """Initialize the model wrapper.
 
         Args:
-            model: The loaded model (transformers, vllm, etc.)
-            tokenizer: The tokenizer
+            model_or_path: The loaded model, or a path/HF model ID to load from
+            tokenizer: The tokenizer (optional if model_or_path is a path)
             model_type: Type of model ("transformers", "vllm", "openai", "azure")
             device: Device to use ("auto", "cuda", "cpu")
             **kwargs: Additional configuration
 
         """
-        self.model = model
+        # If a string path is passed, load the model
+        if isinstance(model_or_path, str):
+            loaded = self.from_pretrained(model_or_path, device=device, **kwargs)
+            self.model = loaded.model
+            self.tokenizer = loaded.tokenizer
+            self.model_type = loaded.model_type
+            self.device = loaded.device
+            self.config = loaded.config
+            self.api_client = loaded.api_client
+            self.api_model_name = loaded.api_model_name
+            return
+
+        self.model = model_or_path
         self.tokenizer = tokenizer
         self.model_type = model_type
         self.device = device
@@ -107,17 +119,17 @@ Provide your response in a structured format that can be easily parsed and actio
         model_name_or_path: str,
         device: str = "auto",
         load_in_8bit: bool = False,
-        load_in_4bit: bool = False,
-        use_flash_attention: bool = True,
+        load_in_4bit: bool = True,
+        use_flash_attention: bool = False,
         **kwargs,
     ) -> "SOCTriageModel":
         """Load a pre-trained SOC Triage model.
 
         Args:
-            model_name_or_path: HuggingFace model ID or local path
+            model_name_or_path: HuggingFace model ID or local path (supports PEFT adapters)
             device: Device to use
             load_in_8bit: Use 8-bit quantization
-            load_in_4bit: Use 4-bit quantization
+            load_in_4bit: Use 4-bit quantization (default True for QLoRA models)
             use_flash_attention: Use Flash Attention 2
             **kwargs: Additional arguments for model loading
 
@@ -139,47 +151,112 @@ Provide your response in a structured format that can be easily parsed and actio
 
         print(f"Loading model from {model_name_or_path}...")
 
-        # Load tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_name_or_path,
-            trust_remote_code=True,
-            **kwargs,
-        )
+        # Check if this is a PEFT adapter directory
+        adapter_config_path = Path(model_name_or_path) / "adapter_config.json"
+        is_peft_adapter = adapter_config_path.exists()
 
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
+        if is_peft_adapter:
+            # Load PEFT adapter
+            print("Detected PEFT adapter, loading base model first...")
 
-        # Prepare model loading arguments
-        model_kwargs = {
-            "trust_remote_code": True,
-            "device_map": device if device != "cpu" else None,
-        }
+            with open(adapter_config_path) as f:
+                adapter_config = json.load(f)
 
-        if load_in_8bit:
-            model_kwargs["load_in_8bit"] = True
-        elif load_in_4bit:
-            model_kwargs["load_in_4bit"] = True
+            base_model_name = adapter_config.get("base_model_name_or_path")
+            if not base_model_name:
+                raise ValueError("adapter_config.json missing base_model_name_or_path")
+
+            print(f"Base model: {base_model_name}")
+
+            # Load tokenizer from base model
+            tokenizer = AutoTokenizer.from_pretrained(
+                base_model_name,
+                trust_remote_code=True,
+            )
+
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+
+            # Prepare model loading arguments
+            model_kwargs = {
+                "trust_remote_code": True,
+                "device_map": device if device != "cpu" else None,
+            }
+
+            if load_in_4bit:
+                try:
+                    from transformers import BitsAndBytesConfig
+
+                    model_kwargs["quantization_config"] = BitsAndBytesConfig(
+                        load_in_4bit=True,
+                        bnb_4bit_compute_dtype=torch.float16,
+                        bnb_4bit_use_double_quant=True,
+                        bnb_4bit_quant_type="nf4",
+                    )
+                except ImportError:
+                    print("Warning: bitsandbytes not available")
+            elif load_in_8bit:
+                model_kwargs["load_in_8bit"] = True
+
+            if use_flash_attention:
+                model_kwargs["attn_implementation"] = "flash_attention_2"
+
+            # Load base model
+            model = AutoModelForCausalLM.from_pretrained(
+                base_model_name,
+                **model_kwargs,
+            )
+
+            # Load PEFT adapter
             try:
-                from transformers import BitsAndBytesConfig
+                from peft import PeftModel
 
-                model_kwargs["quantization_config"] = BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    bnb_4bit_compute_dtype=torch.float16,
-                    bnb_4bit_use_double_quant=True,
-                    bnb_4bit_quant_type="nf4",
-                )
-            except ImportError:
-                print("Warning: bitsandbytes not available, skipping 4-bit quantization")
-                del model_kwargs["load_in_4bit"]
+                print(f"Loading adapter from {model_name_or_path}...")
+                model = PeftModel.from_pretrained(model, model_name_or_path)
+                print("Adapter loaded successfully")
+            except ImportError as err:
+                raise ImportError(
+                    "peft required for loading adapters. Install with: pip install peft"
+                ) from err
 
-        if use_flash_attention:
-            model_kwargs["attn_implementation"] = "flash_attention_2"
+        else:
+            # Load full model directly
+            tokenizer = AutoTokenizer.from_pretrained(
+                model_name_or_path,
+                trust_remote_code=True,
+                **kwargs,
+            )
 
-        # Load model
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name_or_path,
-            **model_kwargs,
-        )
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+
+            model_kwargs = {
+                "trust_remote_code": True,
+                "device_map": device if device != "cpu" else None,
+            }
+
+            if load_in_8bit:
+                model_kwargs["load_in_8bit"] = True
+            elif load_in_4bit:
+                try:
+                    from transformers import BitsAndBytesConfig
+
+                    model_kwargs["quantization_config"] = BitsAndBytesConfig(
+                        load_in_4bit=True,
+                        bnb_4bit_compute_dtype=torch.float16,
+                        bnb_4bit_use_double_quant=True,
+                        bnb_4bit_quant_type="nf4",
+                    )
+                except ImportError:
+                    print("Warning: bitsandbytes not available")
+
+            if use_flash_attention:
+                model_kwargs["attn_implementation"] = "flash_attention_2"
+
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name_or_path,
+                **model_kwargs,
+            )
 
         if device == "cpu":
             model = model.to("cpu")
