@@ -75,7 +75,7 @@ Provide your response in a structured format that can be easily parsed and actio
 
     def __init__(
         self,
-        model=None,
+        model_or_path=None,
         tokenizer=None,
         model_type: str = "transformers",
         device: str = "auto",
@@ -84,14 +84,26 @@ Provide your response in a structured format that can be easily parsed and actio
         """Initialize the model wrapper.
 
         Args:
-            model: The loaded model (transformers, vllm, etc.)
-            tokenizer: The tokenizer
+            model_or_path: The loaded model, or a path/HF model ID to load from
+            tokenizer: The tokenizer (optional if model_or_path is a path)
             model_type: Type of model ("transformers", "vllm", "openai", "azure")
             device: Device to use ("auto", "cuda", "cpu")
             **kwargs: Additional configuration
 
         """
-        self.model = model
+        # If a string path is passed, load the model
+        if isinstance(model_or_path, str):
+            loaded = self.from_pretrained(model_or_path, device=device, **kwargs)
+            self.model = loaded.model
+            self.tokenizer = loaded.tokenizer
+            self.model_type = loaded.model_type
+            self.device = loaded.device
+            self.config = loaded.config
+            self.api_client = loaded.api_client
+            self.api_model_name = loaded.api_model_name
+            return
+
+        self.model = model_or_path
         self.tokenizer = tokenizer
         self.model_type = model_type
         self.device = device
