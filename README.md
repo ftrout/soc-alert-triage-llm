@@ -121,8 +121,7 @@ soc-triage-agent/
 ├── MODEL_CARD.md             # Hugging Face model card
 ├── pyproject.toml            # Package configuration
 ├── README.md                 # This file
-├── LICENSE                   # Apache 2.0 License
-└── CONTRIBUTING.md           # Contribution guidelines
+└── LICENSE                   # Apache 2.0 License
 ```
 
 ## 📊 Alert Categories
@@ -197,17 +196,6 @@ python -m soc_triage_agent.evaluation \
     --output reports/evaluation_report.txt
 ```
 
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-```bash
-# Development setup
-pip install -e ".[dev]"
-pre-commit install
-pytest tests/
-```
-
 ## 📄 License
 
 Apache License 2.0 - see [LICENSE](LICENSE) for details.
@@ -217,7 +205,7 @@ Apache License 2.0 - see [LICENSE](LICENSE) for details.
 ```bibtex
 @software{soc_triage_agent,
   title = {SOC Triage Agent: Fine-tuned LLM for Security Alert Triage},
-  author = {SOC Triage Agent Contributors},
+  author = {ftrout},
   year = {2025},
   url = {https://github.com/ftrout/soc-triage-agent}
 }

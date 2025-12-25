@@ -242,7 +242,7 @@ python scripts/train.py \
 ```bibtex
 @software{soc_triage_agent,
   title = {SOC Triage Agent: Fine-tuned LLM for Security Alert Triage},
-  author = {SOC Triage Agent Contributors},
+  author = {ftrout},
   year = {2025},
   url = {https://huggingface.co/fmt0816/soc-triage-agent}
 }

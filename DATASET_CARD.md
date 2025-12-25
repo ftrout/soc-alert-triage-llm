@@ -274,7 +274,7 @@ generator.generate_dataset(format_type="huggingface")
 ```bibtex
 @dataset{soc_triage_dataset,
   title = {SOC Triage Dataset: Synthetic Security Alerts for ML Training},
-  author = {SOC Triage Agent Contributors},
+  author = {ftrout},
   year = {2025},
   url = {https://huggingface.co/datasets/fmt0816/soc-triage-dataset},
   license = {Apache-2.0}
