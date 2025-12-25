@@ -570,9 +570,7 @@ Provide your response in a structured format that can be easily parsed and actio
                 fields_parsed += 1
             else:
                 # Try to get key factors
-                factors_match = re.search(
-                    r"### Key Factors\n(.+?)(?=###|\Z)", response, re.DOTALL
-                )
+                factors_match = re.search(r"### Key Factors\n(.+?)(?=###|\Z)", response, re.DOTALL)
                 if factors_match:
                     reasoning = factors_match.group(1).strip()
                     fields_parsed += 1
@@ -654,7 +652,9 @@ Provide your response in a structured format that can be easily parsed and actio
             if self.model_type in ["openai", "azure"]:
                 return self._predict_api(user_message, max_new_tokens, temperature, **kwargs)
             else:
-                return self._predict_transformers(user_message, max_new_tokens, temperature, **kwargs)
+                return self._predict_transformers(
+                    user_message, max_new_tokens, temperature, **kwargs
+                )
         except TriageModelError:
             raise
         except Exception as e:
