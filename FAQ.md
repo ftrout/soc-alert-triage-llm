@@ -333,6 +333,26 @@ Adversarial examples are **intentionally difficult** cases that challenge the mo
 
 Adding 5-10% adversarial examples improves model robustness.
 
+### How do I generate adversarial examples?
+
+```bash
+python -m soc_triage_agent.adversarial \
+    --num-samples 1000 \
+    --output data/adversarial.jsonl \
+    --format chat \
+    --seed 42
+```
+
+The generator automatically creates a mix of all 8 adversarial types with predefined ratios:
+- Conflicting signals (20%)
+- Near-miss false positives (15%)
+- Priority ambiguous (15%)
+- Category boundary (15%)
+- Context override (15%)
+- Multi-stage attacks (10%)
+- Evasion patterns (5%)
+- Temporal anomalies (5%)
+
 ---
 
 ## Deployment & Integration
