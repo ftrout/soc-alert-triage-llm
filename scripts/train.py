@@ -324,8 +324,13 @@ def create_model_and_tokenizer(
 
     # Enable gradient checkpointing
     if training_args.gradient_checkpointing:
-        model.gradient_checkpointing_enable()
+        model.gradient_checkpointing_enable(
+            gradient_checkpointing_kwargs={"use_reentrant": False}
+        )
         model.config.use_cache = False
+        # Enable input gradients for LoRA + gradient checkpointing compatibility
+        if hasattr(model, "enable_input_require_grads"):
+            model.enable_input_require_grads()
 
     return model, tokenizer
 
