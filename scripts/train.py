@@ -281,7 +281,7 @@ def create_model_and_tokenizer(
     # Load model
     model_kwargs = {
         "trust_remote_code": model_args.trust_remote_code,
-        "torch_dtype": torch.bfloat16,
+        "dtype": torch.bfloat16,
     }
 
     if quantization_config:

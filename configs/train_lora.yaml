@@ -8,7 +8,7 @@ model:
   name_or_path: "meta-llama/Llama-3.1-8B-Instruct"
   trust_remote_code: true
   use_flash_attention_2: true
-  torch_dtype: "bfloat16"
+  dtype: "bfloat16"
 
 # Tokenizer Configuration
 tokenizer:
