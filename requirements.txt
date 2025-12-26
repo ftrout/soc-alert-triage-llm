@@ -1,0 +1,19 @@
+# SOC Alert Triage 8B - Core Requirements
+# For full installation, use: pip install -e ".[all]"
+
+# Core dependencies
+transformers>=4.36.0
+datasets>=2.14.0
+torch>=2.0.0
+accelerate>=0.24.0
+peft>=0.6.0
+bitsandbytes>=0.41.0
+safetensors>=0.4.0
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+
+# Demo (Gradio interface)
+gradio>=4.0.0
+
+# OpenAI API support (optional)
+openai>=1.12.0
