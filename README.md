@@ -16,6 +16,10 @@ Kodiak SecOps 1 helps security analysts by providing consistent, expert-level tr
 - **Structured Output**: Consistent, parseable response format
 - **Context-Aware**: Considers user role, asset criticality, and environmental factors
 - **Multiple Deployment Options**: Hugging Face, OpenAI API, Azure OpenAI, local inference
+- **Adversarial Testing**: Generate edge cases for model robustness evaluation
+- **Prompt Variants**: A/B testing with 5 prompt styles and few-shot examples
+- **SOAR Integration**: Adapters for XSOAR, Splunk SOAR, and webhooks
+- **Feedback Loop**: Collect analyst corrections for continuous improvement
 
 ## Quick Start
 
@@ -154,6 +158,10 @@ kodiak-secops-1/
 │   ├── __init__.py           # Package exports
 │   ├── data_generator.py     # Synthetic data generation
 │   ├── ait_dataset.py        # AIT real-world dataset integration
+│   ├── adversarial.py        # Adversarial example generation
+│   ├── prompts.py            # Prompt variants and few-shot examples
+│   ├── soar_adapters.py      # SOAR platform integrations
+│   ├── feedback.py           # Analyst feedback collection
 │   ├── model.py              # Model wrapper and inference
 │   └── evaluation.py         # Evaluation metrics
 ├── scripts/
@@ -172,6 +180,82 @@ kodiak-secops-1/
 ├── requirements.txt          # Core dependencies
 ├── pyproject.toml            # Package configuration
 └── README.md                 # This file
+```
+
+### Adversarial Example Generation
+
+Generate challenging edge cases to test and improve model robustness:
+
+```bash
+# Generate adversarial examples
+python -m soc_triage_agent.adversarial generate \
+    --num-samples 500 \
+    --types conflicting_signals,near_miss_fp,category_boundary \
+    --output data/adversarial.jsonl
+```
+
+```python
+from soc_triage_agent import AdversarialGenerator, AdversarialType
+
+generator = AdversarialGenerator()
+hard_cases = generator.generate_hard_cases(
+    num_samples=100,
+    types=[AdversarialType.CONFLICTING_SIGNALS, AdversarialType.NEAR_MISS_FP]
+)
+```
+
+### SOAR Platform Integration
+
+Connect to SOAR platforms for automated incident handling:
+
+```python
+from soc_triage_agent import get_adapter, SOCTriageModel
+
+# Connect to XSOAR
+adapter = get_adapter("xsoar", "https://xsoar.company.com", api_key="...")
+model = SOCTriageModel.from_pretrained("ftrout/kodiak-secops-1")
+
+# Fetch and triage incidents
+for incident in adapter.fetch_incidents(limit=50):
+    result = model.predict(incident.to_alert_dict())
+    adapter.update_incident(incident.incident_id, result)
+```
+
+Supported platforms: XSOAR (Palo Alto), Splunk SOAR, Generic Webhooks
+
+### Analyst Feedback Collection
+
+Collect and analyze analyst corrections for continuous improvement:
+
+```python
+from soc_triage_agent import FeedbackCollector
+
+collector = FeedbackCollector(db_path="feedback.db")
+
+# Record a prediction
+collector.record_prediction("ALERT-001", alert_data, prediction)
+
+# Record analyst correction
+collector.record_correction("ALERT-001", original_prediction, analyst_correction)
+
+# Get analytics
+analytics = collector.get_analytics()
+print(f"Accuracy: {analytics.accuracy:.2%}")
+print(f"Most corrected category: {analytics.most_corrected_category}")
+```
+
+### Prompt Variants and A/B Testing
+
+Use different prompt styles for experimentation:
+
+```python
+from soc_triage_agent import PromptManager
+
+manager = PromptManager(variant="structured")  # default, concise, structured, expert, compliance
+prompt = manager.build_system_prompt(
+    include_thresholds=True,
+    include_examples=3  # Include 3 few-shot examples
+)
 ```
 
 ## Alert Categories

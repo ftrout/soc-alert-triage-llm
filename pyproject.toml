@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kodiak-secops-1"
-version = "1.0.0"
+version = "1.1.0"
 description = "Fine-tuned Llama 3.1 8B for Security Operations Center alert triage"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -97,6 +97,8 @@ Issues = "https://github.com/ftrout/kodiak-secops-1/issues"
 soc-triage-generate = "soc_triage_agent.data_generator:main"
 soc-triage-evaluate = "soc_triage_agent.evaluation:main"
 soc-triage-ait = "soc_triage_agent.ait_dataset:main"
+soc-triage-adversarial = "soc_triage_agent.adversarial:main"
+soc-triage-feedback = "soc_triage_agent.feedback:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
