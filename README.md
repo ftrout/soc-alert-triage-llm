@@ -120,12 +120,18 @@ soc-alert-triage-8b/
 │   └── evaluation.py         # Evaluation metrics
 ├── scripts/
 │   └── train.py              # Training script
+├── configs/
+│   ├── train_lora.yaml       # LoRA training config
+│   └── train_qlora.yaml      # QLoRA training config
 ├── tests/                    # Unit tests
-├── app.py                    # Gradio web interface
+├── app.py                    # Full Gradio web interface
+├── gradio_demo.py            # Simple Gradio demo (HF Spaces)
 ├── demo.py                   # CLI demo
 ├── MODEL_CARD.md             # Hugging Face model card
 ├── DATASET_CARD.md           # Hugging Face dataset card
+├── CONTRIBUTING.md           # Contribution guidelines
 ├── SECURITY.md               # Security policy
+├── requirements.txt          # Core dependencies
 ├── pyproject.toml            # Package configuration
 └── README.md                 # This file
 ```
