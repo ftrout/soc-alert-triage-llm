@@ -563,12 +563,14 @@ class PromptManager:
 
         # Escalation category override
         category = alert.get("category", "")
-        if category in self.thresholds.escalate_categories:
-            if adjusted.get("decision") == "investigate":
-                # Upgrade to escalate for these categories
-                if priority <= self.thresholds.escalate_min_priority:
-                    adjusted["decision"] = "escalate"
-                    adjusted["escalation_required"] = True
+        if (
+            category in self.thresholds.escalate_categories
+            and adjusted.get("decision") == "investigate"
+            and priority <= self.thresholds.escalate_min_priority
+        ):
+            # Upgrade to escalate for these categories
+            adjusted["decision"] = "escalate"
+            adjusted["escalation_required"] = True
 
         adjusted["priority"] = priority
 

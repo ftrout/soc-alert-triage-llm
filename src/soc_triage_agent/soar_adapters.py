@@ -157,7 +157,7 @@ class SOARAdapter(ABC):
         if triage_result.get('escalation_target'):
             note += f"\n**Escalation Target:** {triage_result['escalation_target']}"
 
-        note += f"\n\n---\n_Automated analysis by Kodiak SecOps 1_"
+        note += "\n\n---\n_Automated analysis by Kodiak SecOps 1_"
 
         return note
 
@@ -246,7 +246,7 @@ class XSOARAdapter(SOARAdapter):
                 severity=self._map_severity(item.get("severity", 0)),
                 status=item.get("status", ""),
                 description=item.get("details", ""),
-                labels=[l.get("value", "") for l in item.get("labels", [])],
+                labels=[label.get("value", "") for label in item.get("labels", [])],
                 raw_data=item,
             )
             incidents.append(incident)
@@ -616,7 +616,7 @@ def get_adapter(
     base_url: str,
     **kwargs,
 ) -> SOARAdapter:
-    """Factory function to get appropriate SOAR adapter.
+    """Get appropriate SOAR adapter for the specified platform.
 
     Args:
         platform: Platform name (xsoar, splunk_soar, webhook)

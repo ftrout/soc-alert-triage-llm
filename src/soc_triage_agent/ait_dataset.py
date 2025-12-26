@@ -19,7 +19,6 @@ Example:
 
 """
 
-import hashlib
 import json
 import logging
 import random
@@ -484,9 +483,7 @@ class AITDatasetLoader:
             AlertCategory.LATERAL_MOVEMENT,
             AlertCategory.COMMAND_AND_CONTROL,
             AlertCategory.DATA_EXFILTRATION,
-        ]:
-            return Severity.HIGH if alert.is_attack else Severity.MEDIUM
-        elif category in [
+        ] or category in [
             AlertCategory.MALWARE,
             AlertCategory.PRIVILEGE_ESCALATION,
             AlertCategory.VULNERABILITY_EXPLOIT,
@@ -550,9 +547,7 @@ class AITDatasetLoader:
             return TriageDecision.ESCALATE
         elif category in investigate_categories:
             return TriageDecision.INVESTIGATE
-        elif category == AlertCategory.RECONNAISSANCE:
-            return TriageDecision.MONITOR
-        elif category == AlertCategory.POLICY_VIOLATION:
+        elif category == AlertCategory.RECONNAISSANCE or category == AlertCategory.POLICY_VIOLATION:
             return TriageDecision.MONITOR
         else:
             return TriageDecision.INVESTIGATE
@@ -886,7 +881,7 @@ def main():
     elif args.command == "generate":
         loader = AITDatasetLoader(data_dir=args.data_dir, seed=args.seed)
 
-        print(f"Generating hybrid dataset...")
+        print("Generating hybrid dataset...")
         samples = loader.generate_hybrid_dataset(
             num_samples=args.num_samples,
             real_ratio=args.real_ratio,
