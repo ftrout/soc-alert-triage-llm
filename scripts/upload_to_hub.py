@@ -40,8 +40,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Repository configuration
-MODEL_REPO_ID = "ftrout/kodiak-secops-1"
-DATASET_REPO_ID = "ftrout/kodiak-secops-1-dataset"
+MODEL_REPO_ID = "fmt0816/kodiak-secops-1"
+DATASET_REPO_ID = "fmt0816/kodiak-secops-1-dataset"
 
 # Files to include with model
 MODEL_FILES = [
