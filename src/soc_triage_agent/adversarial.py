@@ -138,11 +138,13 @@ class AdversarialGenerator:
         if difficulty == "hard":
             # High severity + very safe context
             severity = Severity.CRITICAL
-            category = self._rng.choice([
-                AlertCategory.MALWARE,
-                AlertCategory.PRIVILEGE_ESCALATION,
-                AlertCategory.LATERAL_MOVEMENT,
-            ])
+            category = self._rng.choice(
+                [
+                    AlertCategory.MALWARE,
+                    AlertCategory.PRIVILEGE_ESCALATION,
+                    AlertCategory.LATERAL_MOVEMENT,
+                ]
+            )
             user_context = {
                 "username": f"ceo_{self._rng.randint(1, 100)}",
                 "department": "Executive",
@@ -407,11 +409,16 @@ class AdversarialGenerator:
             alert.indicators["accessed_sensitive_files"] = 15
 
         # Primary category should drive decision
-        decision = TriageDecision.ESCALATE if cat1 in [
-            AlertCategory.LATERAL_MOVEMENT,
-            AlertCategory.COMMAND_AND_CONTROL,
-            AlertCategory.DATA_EXFILTRATION,
-        ] else TriageDecision.INVESTIGATE
+        decision = (
+            TriageDecision.ESCALATE
+            if cat1
+            in [
+                AlertCategory.LATERAL_MOVEMENT,
+                AlertCategory.COMMAND_AND_CONTROL,
+                AlertCategory.DATA_EXFILTRATION,
+            ]
+            else TriageDecision.INVESTIGATE
+        )
 
         triage = {
             "decision": decision.value,
@@ -439,10 +446,12 @@ class AdversarialGenerator:
 
         """
         # Low severity alert but critical context
-        category = self._rng.choice([
-            AlertCategory.POLICY_VIOLATION,
-            AlertCategory.RECONNAISSANCE,
-        ])
+        category = self._rng.choice(
+            [
+                AlertCategory.POLICY_VIOLATION,
+                AlertCategory.RECONNAISSANCE,
+            ]
+        )
         severity = Severity.LOW
 
         alert, _ = self._base_generator.generate_alert(
@@ -511,10 +520,12 @@ class AdversarialGenerator:
         Individual alert might seem low risk, but pattern indicates campaign.
 
         """
-        category = self._rng.choice([
-            AlertCategory.RECONNAISSANCE,
-            AlertCategory.BRUTE_FORCE,
-        ])
+        category = self._rng.choice(
+            [
+                AlertCategory.RECONNAISSANCE,
+                AlertCategory.BRUTE_FORCE,
+            ]
+        )
         severity = Severity.MEDIUM if difficulty != "easy" else Severity.LOW
 
         alert, _ = self._base_generator.generate_alert(
@@ -637,10 +648,12 @@ class AdversarialGenerator:
         Same alert might be benign or malicious depending on timing.
 
         """
-        category = self._rng.choice([
-            AlertCategory.POLICY_VIOLATION,
-            AlertCategory.BRUTE_FORCE,
-        ])
+        category = self._rng.choice(
+            [
+                AlertCategory.POLICY_VIOLATION,
+                AlertCategory.BRUTE_FORCE,
+            ]
+        )
         severity = Severity.MEDIUM
 
         alert, _ = self._base_generator.generate_alert(

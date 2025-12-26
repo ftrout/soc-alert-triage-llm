@@ -53,11 +53,13 @@ class DecisionThresholds:
     # Escalation thresholds
     escalate_min_severity: str = "high"
     escalate_min_priority: int = 2
-    escalate_categories: list[str] = field(default_factory=lambda: [
-        "lateral_movement",
-        "command_and_control",
-        "data_exfiltration",
-    ])
+    escalate_categories: list[str] = field(
+        default_factory=lambda: [
+            "lateral_movement",
+            "command_and_control",
+            "data_exfiltration",
+        ]
+    )
 
     # Investigation thresholds
     investigate_min_severity: str = "medium"
@@ -107,7 +109,6 @@ Consider the full context including:
 
 Provide your response in a structured format that can be easily parsed and actioned by the SOC team.""",
     ),
-
     "concise": PromptVariant(
         name="concise",
         description="Shorter, more direct prompt for faster inference",
@@ -124,7 +125,6 @@ Consider: severity, user context, asset criticality, and environmental factors.
 
 Use structured markdown format.""",
     ),
-
     "structured": PromptVariant(
         name="structured",
         description="Highly structured prompt with explicit output format",
@@ -158,7 +158,6 @@ ALWAYS respond with this exact structure:
 
 Base your analysis on alert severity, user/asset context, and environmental factors.""",
     ),
-
     "expert": PromptVariant(
         name="expert",
         description="Expert-level prompt with advanced analysis",
@@ -186,7 +185,6 @@ Structure your response with:
 - Recommended Response
 - Additional Context""",
     ),
-
     "compliance": PromptVariant(
         name="compliance",
         description="Compliance-focused prompt for regulated environments",
@@ -244,7 +242,6 @@ FEW_SHOT_EXAMPLES: list[FewShotExample] = [
             ],
         },
     ),
-
     # Investigate - Brute Force
     FewShotExample(
         category="brute_force",
@@ -275,7 +272,6 @@ FEW_SHOT_EXAMPLES: list[FewShotExample] = [
             ],
         },
     ),
-
     # False Positive - Policy Violation
     FewShotExample(
         category="policy_violation",
@@ -287,7 +283,11 @@ FEW_SHOT_EXAMPLES: list[FewShotExample] = [
             "title": "USB Device Connected",
             "description": "USB storage device connected to IT-WORKSTATION-12 during approved maintenance window by authorized IT administrator.",
             "indicators": {"device_type": "USB Storage", "vendor": "SanDisk"},
-            "user_context": {"username": "it_admin_mike", "department": "IT", "role": "System Administrator"},
+            "user_context": {
+                "username": "it_admin_mike",
+                "department": "IT",
+                "role": "System Administrator",
+            },
             "environmental_context": {"is_maintenance_window": True},
         },
         triage={
@@ -300,7 +300,6 @@ FEW_SHOT_EXAMPLES: list[FewShotExample] = [
             ],
         },
     ),
-
     # Monitor - Reconnaissance
     FewShotExample(
         category="reconnaissance",
@@ -329,7 +328,6 @@ FEW_SHOT_EXAMPLES: list[FewShotExample] = [
             ],
         },
     ),
-
     # Escalate - Data Exfiltration
     FewShotExample(
         category="data_exfiltration",
@@ -391,7 +389,9 @@ class PromptManager:
 
         """
         if variant not in PROMPT_VARIANTS:
-            raise ValueError(f"Unknown variant: {variant}. Available: {list(PROMPT_VARIANTS.keys())}")
+            raise ValueError(
+                f"Unknown variant: {variant}. Available: {list(PROMPT_VARIANTS.keys())}"
+            )
 
         self.variant = PROMPT_VARIANTS[variant]
         self.thresholds = thresholds or DecisionThresholds()

@@ -456,9 +456,7 @@ class AITDatasetLoader:
         """
         # Check raw data for severity hints
         raw = alert.raw_data
-        raw_severity = str(
-            raw.get("severity", raw.get("priority", raw.get("level", "")))
-        ).lower()
+        raw_severity = str(raw.get("severity", raw.get("priority", raw.get("level", "")))).lower()
 
         severity_map = {
             "critical": Severity.CRITICAL,
@@ -620,14 +618,10 @@ class AITDatasetLoader:
                     0.95, synthetic_triage.confidence_score + 0.1
                 )
                 if "multi-step" in alert.time_label.lower():
-                    synthetic_triage.key_factors.insert(
-                        0, "Part of multi-step attack campaign"
-                    )
+                    synthetic_triage.key_factors.insert(0, "Part of multi-step attack campaign")
             elif alert.is_false_positive:
                 synthetic_triage.decision = TriageDecision.FALSE_POSITIVE.value
-                synthetic_triage.key_factors = [
-                    "Verified false positive from labeled dataset"
-                ]
+                synthetic_triage.key_factors = ["Verified false positive from labeled dataset"]
                 synthetic_triage.recommended_actions = [
                     "Update detection rules to reduce false positives"
                 ]
@@ -680,9 +674,7 @@ class AITDatasetLoader:
         try:
             real_alerts = self.load_alerts(max_alerts=num_real * 2)  # Load extra for filtering
             if len(real_alerts) < num_real:
-                logger.warning(
-                    f"Only {len(real_alerts)} real alerts available, adjusting ratio"
-                )
+                logger.warning(f"Only {len(real_alerts)} real alerts available, adjusting ratio")
                 num_real = len(real_alerts)
                 num_synthetic = num_samples - num_real
 
@@ -742,9 +734,7 @@ class AITDatasetLoader:
 
         for alert in alerts:
             # Detector counts
-            stats["detectors"][alert.detector] = (
-                stats["detectors"].get(alert.detector, 0) + 1
-            )
+            stats["detectors"][alert.detector] = stats["detectors"].get(alert.detector, 0) + 1
 
             # Category counts
             category = self.map_to_category(alert)
@@ -899,7 +889,9 @@ def main():
         print(f"Saved {len(samples)} samples to {args.output}")
 
         # Print breakdown
-        real_count = sum(1 for s in samples if s.get("_metadata", {}).get("source") == "ait_dataset")
+        real_count = sum(
+            1 for s in samples if s.get("_metadata", {}).get("source") == "ait_dataset"
+        )
         synth_count = len(samples) - real_count
         print(f"  Real: {real_count} ({100*real_count/len(samples):.1f}%)")
         print(f"  Synthetic: {synth_count} ({100*synth_count/len(samples):.1f}%)")

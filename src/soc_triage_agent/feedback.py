@@ -118,7 +118,8 @@ class FeedbackCollector:
         conn = sqlite3.connect(self.storage_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS feedback (
                 id TEXT PRIMARY KEY,
                 timestamp TEXT NOT NULL,
@@ -138,17 +139,24 @@ class FeedbackCollector:
                 raw_alert TEXT,
                 raw_prediction TEXT
             )
-        """)
+        """
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_timestamp ON feedback(timestamp)
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_alert_category ON feedback(alert_category)
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_was_correct ON feedback(was_correct)
-        """)
+        """
+        )
 
         conn.commit()
         conn.close()
@@ -178,27 +186,30 @@ class FeedbackCollector:
         conn = sqlite3.connect(self.storage_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO feedback (
                 id, timestamp, alert_id, alert_category,
                 predicted_decision, predicted_priority, predicted_confidence,
                 was_correct, model_version, analyst_id,
                 raw_alert, raw_prediction
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            record_id,
-            timestamp,
-            alert_id,
-            alert.get("category"),
-            prediction.get("decision", "investigate"),
-            prediction.get("priority", 3),
-            prediction.get("confidence", 0.0),
-            -1,  # Unknown until reviewed
-            self.model_version,
-            analyst_id,
-            json.dumps(alert),
-            json.dumps(prediction),
-        ))
+        """,
+            (
+                record_id,
+                timestamp,
+                alert_id,
+                alert.get("category"),
+                prediction.get("decision", "investigate"),
+                prediction.get("priority", 3),
+                prediction.get("confidence", 0.0),
+                -1,  # Unknown until reviewed
+                self.model_version,
+                analyst_id,
+                json.dumps(alert),
+                json.dumps(prediction),
+            ),
+        )
 
         conn.commit()
         conn.close()
@@ -237,15 +248,15 @@ class FeedbackCollector:
         timestamp = datetime.utcnow().isoformat()
 
         # Determine if prediction was correct
-        was_correct = (
-            prediction.get("decision") == correction.get("decision") and
-            prediction.get("priority") == correction.get("priority")
-        )
+        was_correct = prediction.get("decision") == correction.get("decision") and prediction.get(
+            "priority"
+        ) == correction.get("priority")
 
         conn = sqlite3.connect(self.storage_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO feedback (
                 id, timestamp, alert_id, alert_category,
                 predicted_decision, predicted_priority, predicted_confidence,
@@ -253,25 +264,27 @@ class FeedbackCollector:
                 analyst_id, was_correct, model_version, tags, notes,
                 raw_alert, raw_prediction
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            record_id,
-            timestamp,
-            alert_id,
-            alert.get("category") if alert else None,
-            prediction.get("decision", "investigate"),
-            prediction.get("priority", 3),
-            prediction.get("confidence", 0.0),
-            correction.get("decision"),
-            correction.get("priority"),
-            reason,
-            analyst_id,
-            1 if was_correct else 0,
-            self.model_version,
-            json.dumps(tags or []),
-            notes,
-            json.dumps(alert) if alert else None,
-            json.dumps(prediction),
-        ))
+        """,
+            (
+                record_id,
+                timestamp,
+                alert_id,
+                alert.get("category") if alert else None,
+                prediction.get("decision", "investigate"),
+                prediction.get("priority", 3),
+                prediction.get("confidence", 0.0),
+                correction.get("decision"),
+                correction.get("priority"),
+                reason,
+                analyst_id,
+                1 if was_correct else 0,
+                self.model_version,
+                json.dumps(tags or []),
+                notes,
+                json.dumps(alert) if alert else None,
+                json.dumps(prediction),
+            ),
+        )
 
         conn.commit()
         conn.close()
@@ -300,11 +313,14 @@ class FeedbackCollector:
         conn = sqlite3.connect(self.storage_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE feedback
             SET was_correct = 1, analyst_id = COALESCE(?, analyst_id)
             WHERE alert_id = ? AND was_correct = -1
-        """, (analyst_id, alert_id))
+        """,
+            (analyst_id, alert_id),
+        )
 
         updated = cursor.rowcount > 0
         conn.commit()
@@ -349,14 +365,17 @@ class FeedbackCollector:
         where_clause = " AND ".join(conditions)
 
         # Total predictions and corrections
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN was_correct = 1 THEN 1 ELSE 0 END) as correct,
                 SUM(CASE WHEN was_correct = 0 THEN 1 ELSE 0 END) as incorrect
             FROM feedback
             WHERE {where_clause}
-        """, params)
+        """,
+            params,
+        )
 
         row = cursor.fetchone()
         total = row[0] or 0
@@ -366,12 +385,15 @@ class FeedbackCollector:
         accuracy_rate = correct / total if total > 0 else 0.0
 
         # Decision confusion matrix
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT predicted_decision, corrected_decision, COUNT(*)
             FROM feedback
             WHERE {where_clause} AND corrected_decision IS NOT NULL
             GROUP BY predicted_decision, corrected_decision
-        """, params)
+        """,
+            params,
+        )
 
         decision_confusion: dict[str, dict[str, int]] = {}
         for pred, corr, count in cursor.fetchall():
@@ -380,7 +402,8 @@ class FeedbackCollector:
             decision_confusion[pred][corr] = count
 
         # Per-decision accuracy
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT
                 predicted_decision,
                 COUNT(*) as total,
@@ -388,47 +411,57 @@ class FeedbackCollector:
             FROM feedback
             WHERE {where_clause}
             GROUP BY predicted_decision
-        """, params)
+        """,
+            params,
+        )
 
         decision_accuracy = {}
         for decision, dec_total, dec_correct in cursor.fetchall():
             decision_accuracy[decision] = dec_correct / dec_total if dec_total > 0 else 0.0
 
         # Priority MAE
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT AVG(ABS(predicted_priority - corrected_priority))
             FROM feedback
             WHERE {where_clause} AND corrected_priority IS NOT NULL
-        """, params)
+        """,
+            params,
+        )
 
         priority_mae = cursor.fetchone()[0] or 0.0
 
         # Priority distribution
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT predicted_priority, COUNT(*)
             FROM feedback
             WHERE {where_clause}
             GROUP BY predicted_priority
-        """, params)
+        """,
+            params,
+        )
 
         priority_distribution = dict(cursor.fetchall())
 
         # Top correction patterns
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT predicted_decision, corrected_decision, COUNT(*) as cnt
             FROM feedback
             WHERE {where_clause} AND was_correct = 0
             GROUP BY predicted_decision, corrected_decision
             ORDER BY cnt DESC
             LIMIT 10
-        """, params)
+        """,
+            params,
+        )
 
-        top_correction_patterns = [
-            (row[0], row[1], row[2]) for row in cursor.fetchall()
-        ]
+        top_correction_patterns = [(row[0], row[1], row[2]) for row in cursor.fetchall()]
 
         # Accuracy trend (daily)
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT
                 DATE(timestamp) as date,
                 AVG(was_correct) as accuracy
@@ -436,21 +469,24 @@ class FeedbackCollector:
             WHERE {where_clause}
             GROUP BY DATE(timestamp)
             ORDER BY date
-        """, params)
+        """,
+            params,
+        )
 
-        accuracy_trend = [
-            (row[0], row[1]) for row in cursor.fetchall()
-        ]
+        accuracy_trend = [(row[0], row[1]) for row in cursor.fetchall()]
 
         # Category accuracy
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT
                 alert_category,
                 AVG(was_correct) as accuracy
             FROM feedback
             WHERE {where_clause} AND alert_category IS NOT NULL
             GROUP BY alert_category
-        """, params)
+        """,
+            params,
+        )
 
         category_accuracy = dict(cursor.fetchall())
 
@@ -493,13 +529,15 @@ class FeedbackCollector:
         conn = sqlite3.connect(self.storage_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT raw_alert, corrected_decision, corrected_priority
             FROM feedback
             WHERE was_correct = 0
                 AND corrected_decision IS NOT NULL
                 AND raw_alert IS NOT NULL
-        """)
+        """
+        )
 
         records = cursor.fetchall()
         conn.close()
@@ -577,28 +615,34 @@ class FeedbackCollector:
         for decision, acc in sorted(analytics.decision_accuracy.items()):
             report_lines.append(f"  {decision:20} {acc:.2%}")
 
-        report_lines.extend([
-            "",
-            "TOP CORRECTION PATTERNS (Predicted -> Corrected)",
-            "-" * 40,
-        ])
+        report_lines.extend(
+            [
+                "",
+                "TOP CORRECTION PATTERNS (Predicted -> Corrected)",
+                "-" * 40,
+            ]
+        )
 
         for pred, corr, count in analytics.top_correction_patterns[:5]:
             report_lines.append(f"  {pred} -> {corr}: {count} times")
 
         if analytics.category_accuracy:
-            report_lines.extend([
-                "",
-                "CATEGORY ACCURACY",
-                "-" * 40,
-            ])
+            report_lines.extend(
+                [
+                    "",
+                    "CATEGORY ACCURACY",
+                    "-" * 40,
+                ]
+            )
             for cat, acc in sorted(analytics.category_accuracy.items()):
                 report_lines.append(f"  {cat:25} {acc:.2%}")
 
-        report_lines.extend([
-            "",
-            "=" * 70,
-        ])
+        report_lines.extend(
+            [
+                "",
+                "=" * 70,
+            ]
+        )
 
         report = "\n".join(report_lines)
 

@@ -151,10 +151,10 @@ class SOARAdapter(ABC):
 
 ### Recommended Actions
 """
-        for i, action in enumerate(triage_result.get('recommended_actions', []), 1):
+        for i, action in enumerate(triage_result.get("recommended_actions", []), 1):
             note += f"{i}. {action}\n"
 
-        if triage_result.get('escalation_target'):
+        if triage_result.get("escalation_target"):
             note += f"\n**Escalation Target:** {triage_result['escalation_target']}"
 
         note += "\n\n---\n_Automated analysis by Kodiak SecOps 1_"
@@ -553,12 +553,14 @@ class WebhookAdapter(SOARAdapter):
         triage_result: dict[str, Any],
     ) -> bool:
         """Send triage update via webhook."""
-        return self._send_webhook({
-            "event": "triage_update",
-            "incident_id": incident_id,
-            "triage": triage_result,
-            "timestamp": time.time(),
-        })
+        return self._send_webhook(
+            {
+                "event": "triage_update",
+                "incident_id": incident_id,
+                "triage": triage_result,
+                "timestamp": time.time(),
+            }
+        )
 
     def create_incident(
         self,
@@ -566,12 +568,14 @@ class WebhookAdapter(SOARAdapter):
         triage_result: dict[str, Any],
     ) -> str:
         """Send new incident via webhook."""
-        self._send_webhook({
-            "event": "new_incident",
-            "alert": alert,
-            "triage": triage_result,
-            "timestamp": time.time(),
-        })
+        self._send_webhook(
+            {
+                "event": "new_incident",
+                "alert": alert,
+                "triage": triage_result,
+                "timestamp": time.time(),
+            }
+        )
         return f"webhook_{int(time.time())}"
 
     def _send_webhook(self, payload: dict[str, Any]) -> bool:
