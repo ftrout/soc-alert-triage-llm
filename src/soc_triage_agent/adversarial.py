@@ -755,9 +755,30 @@ class AdversarialGenerator:
         formatted = []
 
         for example in examples:
+            # Create complete triage dict with all required defaults
+            triage_defaults = {
+                "confidence_score": 0.85,
+                "reasoning": example.explanation,
+                "key_factors": example.triage.get("key_factors", []),
+                "recommended_actions": [
+                    "Review alert details",
+                    "Check related events",
+                ],
+                "escalation_required": example.triage.get("escalation_required", False),
+                "escalation_target": (
+                    "SOC Tier 2" if example.triage.get("escalation_required") else None
+                ),
+                "estimated_impact": "moderate",
+                "estimated_urgency": "hours",
+                "additional_investigation": ["Review logs", "Check user activity"],
+                "ioc_extraction": [],
+            }
+            # Merge with example triage, example values take precedence
+            complete_triage = {**triage_defaults, **example.triage}
+
             # Use the base generator's formatting
             alert_obj = type("Alert", (), example.alert)()
-            triage_obj = type("Triage", (), example.triage)()
+            triage_obj = type("Triage", (), complete_triage)()
 
             sample = self._base_generator.format_for_training(
                 alert_obj,
