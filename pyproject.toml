@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "soc-alert-triage-8b"
+name = "kodiak-secops-1"
 version = "1.0.0"
 description = "Fine-tuned Llama 3.1 8B for Security Operations Center alert triage"
 readme = "README.md"
@@ -84,14 +84,14 @@ demo = [
     "gradio>=4.0.0",
 ]
 all = [
-    "soc-alert-triage-8b[dev,train,serve,azure,demo]",
+    "kodiak-secops-1[dev,train,serve,azure,demo]",
 ]
 
 [project.urls]
-Homepage = "https://github.com/ftrout/soc-alert-triage-8b"
-Documentation = "https://github.com/ftrout/soc-alert-triage-8b#readme"
-Repository = "https://github.com/ftrout/soc-alert-triage-8b"
-Issues = "https://github.com/ftrout/soc-alert-triage-8b/issues"
+Homepage = "https://github.com/ftrout/kodiak-secops-1"
+Documentation = "https://github.com/ftrout/kodiak-secops-1#readme"
+Repository = "https://github.com/ftrout/kodiak-secops-1"
+Issues = "https://github.com/ftrout/kodiak-secops-1/issues"
 
 [project.scripts]
 soc-triage-generate = "soc_triage_agent.data_generator:main"

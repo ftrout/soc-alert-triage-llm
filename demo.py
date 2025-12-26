@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Interactive demo for SOC Triage LLM.
+"""Interactive demo for Kodiak SecOps 1.
 
-This script provides an interactive demonstration of the SOC Triage model,
+This script provides an interactive demonstration of the Kodiak SecOps model,
 allowing users to test alert triage capabilities with sample or custom alerts.
 
 Usage:
@@ -9,13 +9,13 @@ Usage:
 
 Examples:
     # Use local model
-    python demo.py --model ./outputs/soc-triage-llm
+    python demo.py --model ./outputs/kodiak-secops-1
 
     # Use OpenAI API (requires OPENAI_API_KEY env var)
     python demo.py --api openai
 
     # Use Azure OpenAI (requires AZURE_OPENAI_KEY and AZURE_OPENAI_ENDPOINT)
-    python demo.py --api azure --deployment soc-triage-deployment
+    python demo.py --api azure --deployment kodiak-secops-deployment
 
 """
 
@@ -155,7 +155,7 @@ SAMPLE_ALERTS = [
 def print_banner():
     """Print welcome banner."""
     print("\n" + "=" * 60)
-    print("   SOC Triage LLM - Interactive Demo")
+    print("   Kodiak SecOps 1 - Interactive Demo")
     print("=" * 60)
     print("\nThis demo showcases automated security alert triage using")
     print("fine-tuned language models.\n")
@@ -279,7 +279,7 @@ def run_interactive(model: Optional[object]) -> None:
 def main():
     """Run the interactive demo."""
     parser = argparse.ArgumentParser(
-        description="Interactive demo for SOC Triage LLM",
+        description="Interactive demo for Kodiak SecOps 1",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )

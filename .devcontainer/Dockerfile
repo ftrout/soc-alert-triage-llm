@@ -1,5 +1,5 @@
 # =============================================================================
-# SOC Triage Agent - Training Container
+# Kodiak SecOps 1 - Training Container
 # =============================================================================
 # Base: NVIDIA PyTorch NGC Container (optimized for RTX/A100/H100 GPUs)
 # Includes: CUDA 12.x, cuDNN 9, NCCL, PyTorch 2.4+
@@ -7,7 +7,7 @@
 
 FROM nvcr.io/nvidia/pytorch:24.08-py3
 
-LABEL maintainer="SOC Triage Agent Contributors"
+LABEL maintainer="Kodiak SecOps 1 Contributors"
 LABEL description="Container for fine-tuning LLMs for security alert triage"
 
 # Environment variables

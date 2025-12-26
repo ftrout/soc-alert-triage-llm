@@ -1,6 +1,6 @@
-# Contributing to SOC Alert Triage 8B
+# Contributing to Kodiak SecOps 1
 
-Thank you for your interest in contributing to SOC Alert Triage 8B! This document provides guidelines for contributing to the project.
+Thank you for your interest in contributing to Kodiak SecOps 1! This document provides guidelines for contributing to the project.
 
 ## Getting Started
 
@@ -8,8 +8,8 @@ Thank you for your interest in contributing to SOC Alert Triage 8B! This documen
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/ftrout/soc-alert-triage-8b.git
-   cd soc-alert-triage-8b
+   git clone https://github.com/ftrout/kodiak-secops-1.git
+   cd kodiak-secops-1
    ```
 
 2. **Create a virtual environment**
@@ -99,7 +99,7 @@ For feature requests, please describe:
 ## Project Structure
 
 ```
-soc-alert-triage-8b/
+kodiak-secops-1/
 ├── src/soc_triage_agent/    # Main package
 │   ├── data_generator.py    # Synthetic data generation
 │   ├── model.py             # Model wrapper
@@ -142,7 +142,7 @@ Triage decisions should follow security best practices:
 
 ## Questions?
 
-- Open a [GitHub Issue](https://github.com/ftrout/soc-alert-triage-8b/issues)
+- Open a [GitHub Issue](https://github.com/ftrout/kodiak-secops-1/issues)
 - Check existing issues for answers
 
 ## License

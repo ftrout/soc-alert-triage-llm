@@ -1,13 +1,13 @@
-# SOC Alert Triage 8B
+# Kodiak SecOps 1
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-yellow)](https://huggingface.co/fmt0816/soc-alert-triage-8b)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-yellow)](https://huggingface.co/ftrout/kodiak-secops-1)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 **Fine-tuned Llama 3.1 8B for automated Security Operations Center (SOC) alert triage.**
 
-SOC Alert Triage 8B helps security analysts by providing consistent, expert-level triage recommendations for security alerts. It analyzes alert details, user context, asset information, and environmental factors to deliver actionable decisions.
+Kodiak SecOps 1 helps security analysts by providing consistent, expert-level triage recommendations for security alerts. It analyzes alert details, user context, asset information, and environmental factors to deliver actionable decisions.
 
 ## Features
 
@@ -23,8 +23,8 @@ SOC Alert Triage 8B helps security analysts by providing consistent, expert-leve
 
 ```bash
 # Clone the repository
-git clone https://github.com/ftrout/soc-alert-triage-8b.git
-cd soc-alert-triage-8b
+git clone https://github.com/ftrout/kodiak-secops-1.git
+cd kodiak-secops-1
 
 # Install the package
 pip install -e .
@@ -39,7 +39,7 @@ pip install -e ".[all]"
 from soc_triage_agent import SOCTriageModel
 
 # Load from Hugging Face
-model = SOCTriageModel.from_pretrained("fmt0816/soc-alert-triage-8b")
+model = SOCTriageModel.from_pretrained("ftrout/kodiak-secops-1")
 
 # Triage an alert
 alert = {
@@ -81,7 +81,7 @@ pip install -e ".[demo]"
 python app.py
 
 # Or with a specific model
-python app.py --model fmt0816/soc-alert-triage-8b
+python app.py --model ftrout/kodiak-secops-1
 ```
 
 ### Generate Training Data
@@ -102,7 +102,7 @@ python scripts/train.py \
     --model_name_or_path meta-llama/Llama-3.1-8B-Instruct \
     --train_file data/train.jsonl \
     --validation_file data/val.jsonl \
-    --output_dir ./outputs/soc-alert-triage-8b \
+    --output_dir ./outputs/kodiak-secops-1 \
     --use_lora \
     --lora_r 64 \
     --lora_alpha 128 \
@@ -112,7 +112,7 @@ python scripts/train.py \
 ## Project Structure
 
 ```
-soc-alert-triage-8b/
+kodiak-secops-1/
 ├── src/soc_triage_agent/
 │   ├── __init__.py           # Package exports
 │   ├── data_generator.py     # Synthetic data generation
@@ -178,7 +178,7 @@ soc-alert-triage-8b/
 ### Hugging Face Hub
 
 ```python
-model = SOCTriageModel.from_pretrained("fmt0816/soc-alert-triage-8b")
+model = SOCTriageModel.from_pretrained("ftrout/kodiak-secops-1")
 ```
 
 ### OpenAI API
@@ -204,7 +204,7 @@ model = SOCTriageModel.from_azure_openai(
 
 ```python
 model = SOCTriageModel.from_pretrained(
-    "./outputs/soc-alert-triage-8b",
+    "./outputs/kodiak-secops-1",
     load_in_4bit=True,
 )
 ```
@@ -225,18 +225,18 @@ Apache License 2.0 - see [LICENSE](LICENSE) for details.
 ## Citation
 
 ```bibtex
-@software{soc_alert_triage_8b,
-  title = {SOC Alert Triage 8B: Fine-tuned LLM for Security Alert Triage},
+@software{kodiak_secops_1,
+  title = {Kodiak SecOps 1: Fine-tuned LLM for Security Alert Triage},
   author = {ftrout},
   year = {2025},
-  url = {https://github.com/ftrout/soc-alert-triage-8b}
+  url = {https://github.com/ftrout/kodiak-secops-1}
 }
 ```
 
 ## Links
 
-- **Model**: [huggingface.co/fmt0816/soc-alert-triage-8b](https://huggingface.co/fmt0816/soc-alert-triage-8b)
-- **Dataset**: [huggingface.co/datasets/fmt0816/soc-alert-triage-dataset](https://huggingface.co/datasets/fmt0816/soc-alert-triage-dataset)
+- **Model**: [huggingface.co/ftrout/kodiak-secops-1](https://huggingface.co/ftrout/kodiak-secops-1)
+- **Dataset**: [huggingface.co/datasets/ftrout/kodiak-secops-1-dataset](https://huggingface.co/datasets/ftrout/kodiak-secops-1-dataset)
 
 ---
 

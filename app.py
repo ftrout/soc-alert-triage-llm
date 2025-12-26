@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Gradio web interface for SOC Alert Triage 8B.
+"""Gradio web interface for Kodiak SecOps 1.
 
-This module provides an interactive web interface for testing the SOC Alert
-Triage model. It supports both local model inference and API-based inference.
+This module provides an interactive web interface for testing the Kodiak SecOps
+model. It supports both local model inference and API-based inference.
 
 Usage:
     # Run with default settings (no model, demo mode)
     python app.py
 
     # Run with local model
-    python app.py --model fmt0816/soc-alert-triage-8b
+    python app.py --model ftrout/kodiak-secops-1
 
     # Run with OpenAI API
     python app.py --api openai
@@ -361,7 +361,7 @@ def update_json_from_example(example_name: str) -> str:
 def create_interface(model: Optional[object]) -> gr.Blocks:
     """Create the Gradio interface."""
     with gr.Blocks(
-        title="SOC Alert Triage 8B",
+        title="Kodiak SecOps 1",
         theme=gr.themes.Soft(),
         css="""
         .container { max-width: 1200px; margin: auto; }
@@ -373,7 +373,7 @@ def create_interface(model: Optional[object]) -> gr.Blocks:
 
         gr.Markdown(
             """
-            # SOC Alert Triage 8B
+            # Kodiak SecOps 1
 
             Automated security alert triage powered by fine-tuned language models.
             Select a sample alert or enter custom JSON to get triage recommendations.
@@ -431,14 +431,14 @@ def create_interface(model: Optional[object]) -> gr.Blocks:
             ---
             ### About
 
-            **SOC Alert Triage 8B** is a fine-tuned language model for automated security
+            **Kodiak SecOps 1** is a fine-tuned language model for automated security
             alert triage. It analyzes security alerts and provides structured recommendations
             including decision (escalate/investigate/monitor/close), priority, reasoning,
             and recommended actions.
 
-            - **Model**: [fmt0816/soc-alert-triage-8b](https://huggingface.co/fmt0816/soc-alert-triage-8b)
-            - **Dataset**: [fmt0816/soc-alert-triage-dataset](https://huggingface.co/datasets/fmt0816/soc-alert-triage-dataset)
-            - **GitHub**: [github.com/ftrout/soc-alert-triage-8b](https://github.com/ftrout/soc-alert-triage-8b)
+            - **Model**: [ftrout/kodiak-secops-1](https://huggingface.co/ftrout/kodiak-secops-1)
+            - **Dataset**: [ftrout/kodiak-secops-1-dataset](https://huggingface.co/datasets/ftrout/kodiak-secops-1-dataset)
+            - **GitHub**: [github.com/ftrout/kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1)
 
             *This tool is intended to assist security analysts, not replace human judgment.*
             """
@@ -450,7 +450,7 @@ def create_interface(model: Optional[object]) -> gr.Blocks:
 def main():
     """Run the Gradio application."""
     parser = argparse.ArgumentParser(
-        description="SOC Alert Triage 8B - Gradio Interface",
+        description="Kodiak SecOps 1 - Gradio Interface",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(

@@ -1,5 +1,5 @@
 {
-  "name": "SOC Triage Agent - GPU Training",
+  "name": "Kodiak SecOps 1 - GPU Training",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."

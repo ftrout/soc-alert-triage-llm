@@ -1,7 +1,7 @@
 version: '3.8'
 
 # =============================================================================
-# Docker Compose for SOC Triage LLM Training
+# Docker Compose for Kodiak SecOps 1 Training
 # =============================================================================
 # Usage:
 #   docker compose -f .devcontainer/docker-compose.yml up -d
@@ -13,7 +13,7 @@ services:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
-    container_name: soc-triage-training
+    container_name: kodiak-secops-training
 
     # GPU Configuration
     deploy:
@@ -39,7 +39,7 @@ services:
       - HF_HOME=/workspace/.cache/huggingface
       - HF_TOKEN=${HF_TOKEN:-}
       - WANDB_API_KEY=${WANDB_API_KEY:-}
-      - WANDB_PROJECT=soc-triage-llm
+      - WANDB_PROJECT=kodiak-secops-1
       - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-all}
       # Memory optimization
       - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
@@ -75,7 +75,7 @@ services:
   # Optional: TensorBoard service
   tensorboard:
     image: tensorflow/tensorflow:latest
-    container_name: soc-triage-tensorboard
+    container_name: kodiak-secops-tensorboard
     ports:
       - "6006:6006"
     volumes:
@@ -91,7 +91,7 @@ services:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
-    container_name: soc-triage-jupyter
+    container_name: kodiak-secops-jupyter
     ports:
       - "8888:8888"
     deploy:
@@ -105,7 +105,7 @@ services:
       - ..:/workspace:cached
       - huggingface_cache:/workspace/.cache/huggingface
     environment:
-      - JUPYTER_TOKEN=soctriage
+      - JUPYTER_TOKEN=kodiaksecops
     command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
     profiles:
       - notebook

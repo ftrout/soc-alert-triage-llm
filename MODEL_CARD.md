@@ -20,17 +20,17 @@ tags:
 - function-calling
 - structured-output
 datasets:
-- fmt0816/soc-alert-triage-dataset
+- ftrout/kodiak-secops-1-dataset
 base_model: meta-llama/Llama-3.1-8B-Instruct
 model-index:
-- name: soc-alert-triage-8b
+- name: kodiak-secops-1
   results:
   - task:
       type: text-generation
       name: Security Alert Triage
     dataset:
-      type: fmt0816/soc-alert-triage-dataset
-      name: SOC Alert Triage Dataset
+      type: ftrout/kodiak-secops-1-dataset
+      name: Kodiak SecOps 1 Dataset
     metrics:
     - type: accuracy
       value: 0.892
@@ -106,13 +106,13 @@ inference:
     top_p: 0.9
 ---
 
-# SOC Alert Triage 8B
+# Kodiak SecOps 1
 
 A fine-tuned language model for automated Security Operations Center (SOC) alert triage. Built on Llama 3.1 8B Instruct and optimized for structured security analysis and decision-making.
 
 ## Model Description
 
-**soc-alert-triage-8b** is designed to assist security analysts by providing consistent, expert-level triage recommendations for security alerts. It processes alert details including indicators of compromise, user context, asset information, and environmental factors to deliver actionable triage decisions.
+**kodiak-secops-1** is designed to assist security analysts by providing consistent, expert-level triage recommendations for security alerts. It processes alert details including indicators of compromise, user context, asset information, and environmental factors to deliver actionable triage decisions.
 
 ### Key Features
 
@@ -148,7 +148,7 @@ pip install transformers torch accelerate bitsandbytes peft
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-model_id = "fmt0816/soc-alert-triage-8b"
+model_id = "ftrout/kodiak-secops-1"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(
     model_id,
@@ -189,7 +189,7 @@ print(response)
 from soc_triage_agent import SOCTriageModel
 
 # Load model with 4-bit quantization
-model = SOCTriageModel.from_pretrained("fmt0816/soc-alert-triage-8b")
+model = SOCTriageModel.from_pretrained("ftrout/kodiak-secops-1")
 
 # Triage an alert
 alert = {
@@ -340,8 +340,8 @@ The model was trained on synthetic security alert data generated using expert-de
 
 ```bash
 # Clone repository
-git clone https://github.com/ftrout/soc-alert-triage-8b.git
-cd soc-alert-triage-8b
+git clone https://github.com/ftrout/kodiak-secops-1.git
+cd kodiak-secops-1
 
 # Install dependencies
 pip install -e ".[train]"
@@ -358,7 +358,7 @@ python scripts/train.py \
     --model_name_or_path meta-llama/Llama-3.1-8B-Instruct \
     --train_file data/train.jsonl \
     --validation_file data/val.jsonl \
-    --output_dir ./outputs/soc-alert-triage-8b \
+    --output_dir ./outputs/kodiak-secops-1 \
     --use_lora \
     --lora_r 64 \
     --lora_alpha 128 \
@@ -419,11 +419,11 @@ python scripts/train.py \
 ## Citation
 
 ```bibtex
-@software{soc_alert_triage_8b,
-  title = {SOC Alert Triage 8B: Fine-tuned LLM for Security Alert Triage},
+@software{kodiak_secops_1,
+  title = {Kodiak SecOps 1: Fine-tuned LLM for Security Alert Triage},
   author = {ftrout},
   year = {2025},
-  url = {https://huggingface.co/fmt0816/soc-alert-triage-8b},
+  url = {https://huggingface.co/ftrout/kodiak-secops-1},
   note = {Fine-tuned on Llama 3.1 8B Instruct using QLoRA}
 }
 ```
@@ -441,6 +441,6 @@ This model is released under the [Apache 2.0 License](https://www.apache.org/lic
 
 ## Links
 
-- **Model**: [huggingface.co/fmt0816/soc-alert-triage-8b](https://huggingface.co/fmt0816/soc-alert-triage-8b)
-- **Dataset**: [huggingface.co/datasets/fmt0816/soc-alert-triage-dataset](https://huggingface.co/datasets/fmt0816/soc-alert-triage-dataset)
-- **GitHub**: [github.com/ftrout/soc-alert-triage-8b](https://github.com/ftrout/soc-alert-triage-8b)
+- **Model**: [huggingface.co/ftrout/kodiak-secops-1](https://huggingface.co/ftrout/kodiak-secops-1)
+- **Dataset**: [huggingface.co/datasets/ftrout/kodiak-secops-1-dataset](https://huggingface.co/datasets/ftrout/kodiak-secops-1-dataset)
+- **GitHub**: [github.com/ftrout/kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Gradio demo for SOC Alert Triage 8B.
+"""Simple Gradio demo for Kodiak SecOps 1.
 
 This is a minimal Gradio app designed for quick testing and
 Hugging Face Spaces deployment.
@@ -187,18 +187,18 @@ def update_json(example: str) -> str:
 
 # Create the Gradio interface
 with gr.Blocks(
-    title="SOC Alert Triage 8B",
+    title="Kodiak SecOps 1",
     theme=gr.themes.Soft(),
 ) as demo:
     gr.Markdown(
         """
-        # SOC Alert Triage 8B
+        # Kodiak SecOps 1
 
         Automated security alert triage powered by fine-tuned language models.
         Select a sample alert or enter custom JSON to get triage recommendations.
 
-        **Model:** [fmt0816/soc-alert-triage-8b](https://huggingface.co/fmt0816/soc-alert-triage-8b) |
-        **Dataset:** [fmt0816/soc-alert-triage-dataset](https://huggingface.co/datasets/fmt0816/soc-alert-triage-dataset)
+        **Model:** [ftrout/kodiak-secops-1](https://huggingface.co/ftrout/kodiak-secops-1) |
+        **Dataset:** [ftrout/kodiak-secops-1-dataset](https://huggingface.co/datasets/ftrout/kodiak-secops-1-dataset)
         """
     )
 
@@ -236,7 +236,7 @@ with gr.Blocks(
         ### About
 
         This demo showcases rule-based triage logic. For production use, deploy the
-        [full fine-tuned model](https://huggingface.co/fmt0816/soc-alert-triage-8b)
+        [full fine-tuned model](https://huggingface.co/ftrout/kodiak-secops-1)
         for ML-powered analysis.
 
         *This tool assists security analysts - it does not replace human judgment.*

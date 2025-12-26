@@ -6,7 +6,7 @@ language:
 license: apache-2.0
 multilinguality:
 - monolingual
-pretty_name: SOC Alert Triage Dataset
+pretty_name: Kodiak SecOps 1 Dataset
 size_categories:
 - "10K<n<100K"
 source_datasets:
@@ -25,9 +25,9 @@ task_ids:
 - multi-class-classification
 ---
 
-# SOC Alert Triage Dataset
+# Kodiak SecOps 1 Dataset
 
-A synthetic dataset of security alerts with expert-level triage decisions for training the SOC Alert Triage 8B model and other security operations models.
+A synthetic dataset of security alerts with expert-level triage decisions for training the Kodiak SecOps 1 model and other security operations models.
 
 ## Dataset Description
 
@@ -231,7 +231,7 @@ All data is synthetically generated. No real security incidents or personal data
 from datasets import load_dataset
 
 # From Hugging Face Hub
-dataset = load_dataset("fmt0816/soc-alert-triage-dataset")
+dataset = load_dataset("ftrout/kodiak-secops-1-dataset")
 
 # Access splits
 train_data = dataset["train"]
@@ -272,11 +272,11 @@ generator.generate_dataset(format_type="huggingface")
 ## Citation
 
 ```bibtex
-@dataset{soc_triage_dataset,
-  title = {SOC Triage Dataset: Synthetic Security Alerts for ML Training},
+@dataset{kodiak_secops_1_dataset,
+  title = {Kodiak SecOps 1 Dataset: Synthetic Security Alerts for ML Training},
   author = {ftrout},
   year = {2025},
-  url = {https://huggingface.co/datasets/fmt0816/soc-alert-triage-dataset},
+  url = {https://huggingface.co/datasets/ftrout/kodiak-secops-1-dataset},
   license = {Apache-2.0}
 }
 ```

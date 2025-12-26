@@ -1,11 +1,11 @@
 #!/bin/bash
 # =============================================================================
-# Post-create script for SOC Triage Agent devcontainer
+# Post-create script for Kodiak SecOps 1 devcontainer
 # =============================================================================
 
 set -e
 
-echo "=== Installing SOC Triage Agent in development mode ==="
+echo "=== Installing Kodiak SecOps 1 in development mode ==="
 pip install -e ".[dev]"
 
 echo ""
